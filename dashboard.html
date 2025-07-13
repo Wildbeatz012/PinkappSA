@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Your Dashboard - InvestSmart</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+</head>
+<body>
+  <header>
+    <h1>Welcome to Your Dashboard</h1>
+    <button id="logout-btn">Logout</button>
+  </header>
+
+  <section>
+    <h2>Your Virtual Portfolio</h2>
+    <p>Starting Balance: $10,000</p>
+    <p>Current Balance: $<span id="balance">10000</span></p>
+    <button id="invest-btn">Invest $1000</button>
+    <p id="invest-msg"></p>
+  </section>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "YOUR_API_KEY",
+      authDomain: "YOUR_AUTH_DOMAIN",
+      projectId: "YOUR_PROJECT_ID",
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+
+    auth.onAuthStateChanged(user => {
+      if (!user) {
+        window.location.href = 'signup.html';
+      }
+    });
+
+    const logoutBtn = document.getElementById('logout-btn');
+    logoutBtn.addEventListener('click', () => {
+      auth.signOut().then(() => {
+        window.location.href = 'signup.html';
+      });
+    });
+
+    let balance = 10000;
+
+    const balanceSpan = document.getElementById('balance');
+    const investBtn = document.getElementById('invest-btn');
+    const investMsg = document.getElementById('invest-msg');
+
+    investBtn.addEventListener('click', () => {
+      if (balance < 1000) {
+        investMsg.textContent = "You don't have enough balance to invest.";
+        investMsg.style.color = 'red';
+        return;
+      }
+
+      const returnPercent = (Math.random() * 30) - 10;
+      const investmentResult = 1000 * (1 + returnPercent / 100);
+      balance = balance - 1000 + investmentResult;
+      balance = Math.round(balance * 100) / 100;
+
+      balanceSpan.textContent = balance.toFixed(2);
+      investMsg.style.color = 'green';
+      investMsg.textContent = `Invested $1000 and returned ${returnPercent.toFixed(2)}%. New balance: $${balance.toFixed(2)}`;
+    });
+  </script>
+</body>
+</html>
